@@ -12,10 +12,12 @@ void Server::UpdateServerData(){
 
     if(this->online_players > 1){
         for(int i = 0; i < Server::MAX_PLAYERS; i++){
+
             const uintptr_t player = memory_address + (offsets::next_player * i);
             this->players[i].id = i;
             this->players[i].position = memory->Read<Vector2>(player + offsets::position);
             this->players[i].gametick = memory->Read<int32_t>(player + offsets::gametick);
+
             int frozen = memory->Read<int32_t>(player + offsets::frozen);
             this->players[i].frozen = frozen > 0 ? true : false;
             

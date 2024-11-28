@@ -33,19 +33,17 @@ Player Aimbot::GetNearestInSector(double a, int r, Server *server, bool avoid_fr
 
         float dist = Aimbot::distance(player.position, Server::localPlayer.position);
 
-        if (Server::GetValidPlayer(player) && player.id != Server::localPlayer.id && dist < r)
+        if (!Server::GetValidPlayer(player) || player.id == Server::localPlayer.id || dist < r || dist < 2) continue;
+
+        float aPlayer = atan2(player.position.y - Server::localPlayer.position.y, player.position.x - Server::localPlayer.position.x);
+
+        if (aPlayer > aAim - (a / 2) && aPlayer < aAim + (a / 2))
         {
-
-            float aPlayer = atan2(player.position.y - Server::localPlayer.position.y, player.position.x - Server::localPlayer.position.x);
-
-            if (aPlayer > aAim - (a / 2) && aPlayer < aAim + (a / 2))
+            
+            if (dist < closestDist)
             {
-                
-                if (dist < closestDist)
-                {
-                    closestDist = dist;
-                    closestPlayer = player;
-                }
+                closestDist = dist;
+                closestPlayer = player;
             }
         }
     }
@@ -60,22 +58,20 @@ Player Aimbot::GetNearestToPlayer(float maxDistance, Server *server, bool avoid_
 
     float closestDist = maxDistance;
     Player closestPlayer;
-
     for (int i = 0; i < Server::MAX_PLAYERS; i++)
     {
         Player player = server->players[i];
 
-        if (player.id != Server::localPlayer.id && server->GetValidPlayer(player) && ((avoid_freezed_tee && !player.frozen) || !avoid_freezed_tee))
-        {
-            float dist = Aimbot::distance(player.position, Server::localPlayer.position);
+        if (player.id == Server::localPlayer.id || !server->GetValidPlayer(player) || (avoid_freezed_tee && player.frozen)) continue;
+        
+        float dist = Aimbot::distance(player.position, Server::localPlayer.position);
 
-            if (dist > 0 && dist < closestDist)
-            {
-                closestDist = dist;
-                closestPlayer = player;
-            }
-            
+        if (dist > 5 && dist < closestDist)
+        {
+            closestDist = dist;
+            closestPlayer = player;
         }
+            
     }
 
     Server::localPlayer.nearestPlayer = closestPlayer;
